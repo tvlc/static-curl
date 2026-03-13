@@ -49,9 +49,14 @@ export CC=clang
 # set up any required curl options here
 #LDFLAGS="-static" PKG_CONFIG="pkg-config --static" ./configure --disable-shared --enable-static --disable-libcurl-option --without-brotli --disable-manual --disable-unix-sockets --disable-dict --disable-file --disable-gopher --disable-imap --disable-smtp --disable-rtsp --disable-telnet --disable-tftp --disable-pop3 --without-zlib --disable-threaded-resolver --disable-ipv6 --disable-smb --disable-ntlm-wb --disable-tls-srp --disable-crypto-auth --without-ngtcp2 --without-nghttp2 --disable-ftp --disable-mqtt --disable-alt-svc --without-ssl
 
-LDFLAGS="-static" PKG_CONFIG="pkg-config --static" ./configure --disable-shared --enable-static --disable-ldap --enable-ipv6 --enable-unix-sockets --with-ssl --with-libssh2 --disable-docs --disable-manual --without-libpsl
+# LDFLAGS="-static" PKG_CONFIG="pkg-config --static" ./configure --disable-shared --enable-static --disable-ldap --enable-ipv6 --enable-unix-sockets --with-ssl --with-libssh2 --disable-docs --disable-manual --without-libpsl
+# with websockets
+LDFLAGS="-static" PKG_CONFIG="pkg-config --static" ./configure --disable-shared --enable-static --disable-ldap --enable-ipv6 --enable-unix-sockets --with-ssl --with-libssh2 --disable-docs --disable-manual --without-libpsl --enable-websockets 
 
-make -j4 V=1 LDFLAGS="-static -all-static"
+# make -j4 V=1 LDFLAGS="-static -all-static"
+# avoid a fixed aggressive parallel build count under emulation
+JOBS="${JOBS:-$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 2)}"
+make -j"$JOBS" V=1 LDFLAGS="-static -all-static"
 
 # binary is ~13M before stripping, 2.6M after
 strip src/curl
@@ -68,6 +73,6 @@ ldd src/curl && exit 1 || true
 
 # we only want to save curl here
 mkdir -p /tmp/release/
-mv src/curl "/tmp/release/curl-$ARCH"
+mv src/curl "/tmp/release/curl-${ARCH}-${CURL_VERSION}"
 cd ..
 rm -rf "curl-${CURL_VERSION}/"
