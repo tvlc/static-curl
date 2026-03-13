@@ -19,5 +19,5 @@ exec docker run --rm \
   -v "$PWD:/tmp" \
   -w /tmp \
   -e ARCH="$ARCH" \
-  alpine:3.20 \
+  alpine:3.23 \
   /tmp/build.sh ${CURL_VERSION:+$CURL_VERSION}
